@@ -4,14 +4,7 @@ import re
 import os
 import time
 
-'''
-1.通过链接获取详情页url，标题名字
-创建功能，获取详情页地址：
-XXXX
 
-2.获取详情页获取图片下载地址，翻页的url
-3.通过下载地址下载图片
-'''
 headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (HTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
     }
@@ -64,7 +57,7 @@ def get_img_url(url):
                 os.mkdir(f"{title}/" +i)
             print('正在下载图片：' + i,'共' + str(page_num) + '张')
             
-            for k in range(1， int(page_num)+1):
+            for k in range(1, int(page_num)+1):
                 if k == 1:
                     download_img(page_url,i,k,title)
                 else:
@@ -73,6 +66,27 @@ def get_img_url(url):
             k += 1 
             
 if __name__ == '__main__':
-    url = 'http://www.umeituku.com/bizhitupian/shoujibizhi/'#修改url
-    get_img_url(url)
+    r = requests.get('http://www.umeituku.com/about/sitemap.htm', headers=headers)
+    r.encoding = r.apparent_encoding
+    mainnav_url = re.findall(r'> <a href="(.*?)" title="', r.text)
+    title= re.findall(r'title=".*>(.*?)</a>', r.text)
+    print("图片分类:")
+    j = 1
+    for i in title[1:]:
+        print(str(j) + '.' + i)
+        j += 1
+    while True:
+        try:
+            input_url = int(input('请输入需要下载分类对应序号（1-'+str(j-1)+'）：'))
+            if input_url < 1 or input_url > j:
+                print('输入错误，请重新输入')
+            else:
+                url = mainnav_url[int(input_url)-1]
+                print('输入的分类为：' + title[int(input_url)-1])
+                get_img_url(url)
+                break
+        except:
+            print('输入的不是数字，请重新输入')
+            continue
+
 
